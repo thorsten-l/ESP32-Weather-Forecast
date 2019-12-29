@@ -2,8 +2,7 @@
 #include <WeatherData.hpp>
 #include <WiFi.h>
 
-
-  int stdIconMap[][2] = {
+uint16_t stdOWMIconMap[][2] PROGMEM = {
     {200, 0x3e}, {201, 0x3e}, {202, 0x3e}, {210, 0x36}, {211, 0x36}, {212, 0x36},
     {221, 0x36}, {230, 0x3e}, {231, 0x3e}, {232, 0x3e}, {300, 0x3c}, {301, 0x3c},
     {302, 0x39}, {310, 0x37}, {311, 0x39}, {312, 0x39}, {313, 0x3a}, {314, 0x39},
@@ -16,7 +15,7 @@
     {901, 0x3d}, {902, 0x8d}, {903, 0x90}, {904, 0x8c}, {905, 0x3f}, {906, 0x35},
     {957, 0x6c}};
 
-  int dayIconMap[][2] = {
+uint16_t dayOWMIconMap[][2] PROGMEM = {
     {200, 0x30}, {201, 0x30}, {202, 0x30}, {210, 0x26}, {211, 0x26}, {212, 0x26},
     {221, 0x26}, {230, 0x30}, {231, 0x30}, {232, 0x30}, {300, 0x2c}, {301, 0x2c},
     {302, 0x29}, {310, 0x29}, {311, 0x29}, {312, 0x29}, {313, 0x29}, {314, 0x29},
@@ -29,7 +28,7 @@
     {901, 0x2f}, {902, 0x8d}, {903, 0x90}, {904, 0x8c}, {905, 0xdd}, {906, 0x25},
     {957, 0x6c}};
 
-  int nightIconMap[][2] = {
+uint16_t nightOWMIconMap[][2] PROGMEM = {
     {200, 0x4b}, {201, 0x4b}, {202, 0x4b}, {210, 0x43}, {211, 0x43}, {212, 0x43},
     {221, 0x43}, {230, 0x4b}, {231, 0x4b}, {232, 0x4b}, {300, 0x49}, {301, 0x49},
     {302, 0x46}, {310, 0x46}, {311, 0x46}, {312, 0x46}, {313, 0x46}, {314, 0x46},
@@ -41,7 +40,6 @@
     {800, 0x4c}, {801, 0x40}, {802, 0x40}, {803, 0x40}, {804, 0x9f}, {900, 0x72},
     {901, 0x4a}, {902, 0x8d}, {903, 0x90}, {904, 0x8c}, {905, 0x3f}, {906, 0x42},
     {957, 0x6c}};
-
 
 extern String getTimeString(time_t time);
 
@@ -89,7 +87,7 @@ DeserializationError getCurrentWeatherData()
       "http://api.openweathermap.org/data/2.5/"
       "weather?id=2920632&appid=53166edfe73f27534840e137234035c7&units="
       "metric&lang=de");
-
+/*
   if (err == DeserializationError::Ok)
   {
     time_t dt = currentWeather["dt"].as<long>();
@@ -100,7 +98,8 @@ DeserializationError getCurrentWeatherData()
     dt = currentWeather["sys"]["sunset"].as<long>();
     Serial.printf("sunset=%ld %s\n", dt, getTimeString(dt).c_str());
   }
-  Serial.println();
+*/
+  // Serial.println();
 
   return err;
 }
@@ -136,17 +135,18 @@ DeserializationError getWeatherForecastData()
       "forecast?id=2920632&appid=53166edfe73f27534840e137234035c7&units="
       "metric&lang=de");
 
+/*
   if (err == DeserializationError::Ok)
   {
     int cnt = weatherForcast["cnt"].as<int>();
-    Serial.printf("cnt=%d\n", cnt );
+    // Serial.printf("cnt=%d\n", cnt );
 
     for( int i=0; i<cnt; i++)
     {
       JsonObject obj = weatherForcast["list"][i];
-      showForecast( i, obj );
+      // showForecast( i, obj );
     }
   }
-
+*/
   return err;
 }

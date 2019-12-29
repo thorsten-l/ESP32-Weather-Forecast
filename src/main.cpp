@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <Esp.h>
-#include <GxEPD2_WS_ESP32_Driver.hpp>
+#include <DisplayHandler.hpp>
 #include <OtaHandler.hpp>
 #include <SPIFFS.h>
 #include <WiFi.h>
@@ -114,7 +114,7 @@ void setup()
   printAsDouble("Free Sketch Space   : ", ESP.getFreeSketchSpace(), 1024, "KB");
   printAsDouble("SPIFFS total bytes  : ", SPIFFS.totalBytes(), 1024, "KB");
   printAsDouble("SPIFFS used bytes   : ", SPIFFS.usedBytes(), 1024, "KB");
-  // SPIFFS.end();
+  SPIFFS.end();
 
   Serial.printf("\nCycle Count         : %u\n", ESP.getCycleCount());
   Serial.println();
@@ -157,13 +157,14 @@ void setup()
   Serial.println(&timeinfo, "Time                : %Y-%m-%d %H:%M:%S");
   Serial.println();
 
+  delay(1000);
+  displaySetup();
+//  getCurrentWeatherData();
+//  getWeatherForecastData();
+  displayUpdate();
+
   Serial.println("Setup done.\n");
   Serial.flush();
-  delay(1000);
-  demo_setup();
-
-  getCurrentWeatherData();
-  getWeatherForecastData();
 }
 
 void loop()
@@ -186,7 +187,6 @@ void loop()
     }
   }
 
-  demo_loop();
   ArduinoOTA.handle();
-  delay(5);
+  delay(25);
 }
