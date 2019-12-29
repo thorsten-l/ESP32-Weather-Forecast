@@ -2,7 +2,10 @@
 #include <WeatherData.hpp>
 #include <WiFi.h>
 
-uint16_t stdOWMIconMap[][2] PROGMEM = {
+// in m/s        Beaufort 0    1    2    3    4     5     6     7     8     9    10    11
+double windSpeeds[] = { 0.3, 1.5, 3.3, 5.4, 7.9, 10.7, 13.8, 17.1, 20.7, 24.4, 28.4, 32.6 };
+
+uint16_t stdOWMIconMap[61][2] PROGMEM = {
     {200, 0x3e}, {201, 0x3e}, {202, 0x3e}, {210, 0x36}, {211, 0x36}, {212, 0x36},
     {221, 0x36}, {230, 0x3e}, {231, 0x3e}, {232, 0x3e}, {300, 0x3c}, {301, 0x3c},
     {302, 0x39}, {310, 0x37}, {311, 0x39}, {312, 0x39}, {313, 0x3a}, {314, 0x39},
@@ -15,7 +18,7 @@ uint16_t stdOWMIconMap[][2] PROGMEM = {
     {901, 0x3d}, {902, 0x8d}, {903, 0x90}, {904, 0x8c}, {905, 0x3f}, {906, 0x35},
     {957, 0x6c}};
 
-uint16_t dayOWMIconMap[][2] PROGMEM = {
+uint16_t dayOWMIconMap[61][2] PROGMEM = {
     {200, 0x30}, {201, 0x30}, {202, 0x30}, {210, 0x26}, {211, 0x26}, {212, 0x26},
     {221, 0x26}, {230, 0x30}, {231, 0x30}, {232, 0x30}, {300, 0x2c}, {301, 0x2c},
     {302, 0x29}, {310, 0x29}, {311, 0x29}, {312, 0x29}, {313, 0x29}, {314, 0x29},
@@ -28,7 +31,7 @@ uint16_t dayOWMIconMap[][2] PROGMEM = {
     {901, 0x2f}, {902, 0x8d}, {903, 0x90}, {904, 0x8c}, {905, 0xdd}, {906, 0x25},
     {957, 0x6c}};
 
-uint16_t nightOWMIconMap[][2] PROGMEM = {
+uint16_t nightOWMIconMap[61][2] PROGMEM = {
     {200, 0x4b}, {201, 0x4b}, {202, 0x4b}, {210, 0x43}, {211, 0x43}, {212, 0x43},
     {221, 0x43}, {230, 0x4b}, {231, 0x4b}, {232, 0x4b}, {300, 0x49}, {301, 0x49},
     {302, 0x46}, {310, 0x46}, {311, 0x46}, {312, 0x46}, {313, 0x46}, {314, 0x46},
@@ -44,7 +47,7 @@ uint16_t nightOWMIconMap[][2] PROGMEM = {
 extern String getTimeString(time_t time);
 
 DynamicJsonDocument currentWeather(1000);
-DynamicJsonDocument weatherForcast(32000);
+DynamicJsonDocument weatherForecast(32000);
 
 DeserializationError readJSON(DynamicJsonDocument &doc, String url)
 {
@@ -87,7 +90,7 @@ DeserializationError getCurrentWeatherData()
       "http://api.openweathermap.org/data/2.5/"
       "weather?id=2920632&appid=53166edfe73f27534840e137234035c7&units="
       "metric&lang=de");
-/*
+
   if (err == DeserializationError::Ok)
   {
     time_t dt = currentWeather["dt"].as<long>();
@@ -98,8 +101,8 @@ DeserializationError getCurrentWeatherData()
     dt = currentWeather["sys"]["sunset"].as<long>();
     Serial.printf("sunset=%ld %s\n", dt, getTimeString(dt).c_str());
   }
-*/
-  // Serial.println();
+
+  Serial.println();
 
   return err;
 }
@@ -130,23 +133,23 @@ void showForecast( int i, JsonObject& obj )
 DeserializationError getWeatherForecastData()
 {
   DeserializationError err = readJSON(
-      weatherForcast,
+      weatherForecast,
       "http://api.openweathermap.org/data/2.5/"
       "forecast?id=2920632&appid=53166edfe73f27534840e137234035c7&units="
       "metric&lang=de");
 
-/*
   if (err == DeserializationError::Ok)
   {
-    int cnt = weatherForcast["cnt"].as<int>();
+    int cnt = weatherForecast["cnt"].as<int>();
     // Serial.printf("cnt=%d\n", cnt );
 
-    for( int i=0; i<cnt; i++)
+    /*for( int i=0; i<cnt; i++)
     {
-      JsonObject obj = weatherForcast["list"][i];
-      // showForecast( i, obj );
+      JsonObject obj = weatherForecast["list"][i];
+      showForecast( i, obj );
     }
+    */
   }
-*/
+
   return err;
 }

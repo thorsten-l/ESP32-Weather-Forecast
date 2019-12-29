@@ -16,6 +16,7 @@
 
 #include <sunmoon.h>
 #include <math.h>
+#include <WeatherData.hpp>
 
 GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT> display(GxEPD2_750c(/*CS=*/15, /*DC=*/27, /*RST=*/26, /*BUSY=*/25));
 
@@ -34,7 +35,7 @@ struct bitmap_pair
   const unsigned char *red;
 };
 
-void showCentered(int x, int y, int cwidth, char *text)
+void showCentered(int x, int y, int cwidth, const char *text)
 {
   int16_t x1, y1;
   uint16_t w, h;
@@ -194,6 +195,87 @@ void showMoonPhase( int x, int y, struct SUN_MOON &sunmoon )
   showCentered( x, y+16, 62, buffer );  
 }
 
+
+uint8_t findIcon( uint16_t icons[][2], uint16_t iconId )
+{
+  uint8_t icon = 0x20;
+
+  for ( int i=0; i<61; i++ )
+  {
+    if ( icons[i][0] == iconId )
+    {
+      icon = (uint8_t)icons[i][1];
+      break;
+    }
+  }
+
+  return icon;
+}
+
+uint8_t getOWMicon( int weatherId, const char *iconName )
+{
+  uint8_t icon = findIcon( stdOWMIconMap, weatherId );
+
+  char lastChar = 0;
+  int i = 0;
+  while( iconName[i] != 0 )
+  {
+    lastChar = iconName[i++];
+  }
+
+  if ( lastChar == 'd' ) 
+  {
+    display.setTextColor(GxEPD_RED);
+    icon = findIcon( dayOWMIconMap, weatherId );
+  }
+
+  if ( lastChar == 'n' ) icon = findIcon( nightOWMIconMap, weatherId );
+
+  return icon;
+}
+
+void showWeatherForecast3h()
+{
+  int x = 145;
+  int y = 100;
+  
+
+  for ( int i = 0; i< 8; i++ )
+  {
+    display.setTextColor(GxEPD_BLACK);
+    display.setFont(&DejaVuSansMono_Bold7pt8b);
+    JsonObject obj = weatherForecast["list"][i];
+    time_t dt = obj["dt"].as<long>();
+    display.setCursor( x, y );
+    showCentered( x, y, 62, getTimeString(dt).c_str() );
+
+    char buffer[16];
+
+    sprintf( buffer, "%0.1foC", obj["main"]["temp"].as<double>() );
+    buffer[strlen(buffer)-2] = 176; // ° Sign
+    showCentered( x, y+44+20, 62, buffer );
+    sprintf( buffer, "%d%%", obj["main"]["humidity"].as<int>() );
+    showCentered( x, y+44+36, 62, buffer );
+
+    display.setFont(&WeatherIconsR_Regular20pt8b);
+
+    double speed = obj["wind"]["speed"].as<double>();
+    uint8_t w = 0;
+    for ( ; w<12 && speed > windSpeeds[w]; w++ );
+    Serial.println( w );
+
+    buffer[0] = 0xd0 + w;
+    buffer[1] = 0;
+    showCentered( x, y+44+70, 62, buffer );
+
+    buffer[0] = getOWMicon( obj["weather"][0]["id"].as<int>(), obj["weather"][0]["icon"].as<String>().c_str());
+    buffer[1] = 0;
+    showCentered( x, y+44, 62, buffer );
+
+    x += 62;
+  }
+}
+
 void displayUpdate()
 {
   struct tm timeinfo;
@@ -226,7 +308,7 @@ void displayUpdate()
 
     display.drawLine( 144, 0, 144, 384, GxEPD_BLACK );
 
-    int y = 360;
+    int y = 364;
     int x = 145;
     display.setTextColor(GxEPD_RED);
     showRiseSet( x, y, OWM_SUNRISE, zoneShift(sunmoon.SunRise.hh, zone), sunmoon.SunRise.mm );
@@ -241,6 +323,8 @@ void displayUpdate()
     showRiseSet( x, y, OWM_MOONSET, zoneShift(sunmoon.MoonSet.hh, zone), sunmoon.MoonSet.mm );
     x += 62;
     showMoonPhase( x, y, sunmoon );
+
+    showWeatherForecast3h();
 
   } while (display.nextPage());
 

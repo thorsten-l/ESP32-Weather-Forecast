@@ -12,8 +12,17 @@
 #define OWM_FULLMOON    0x00bd
 #define OWM_MOONPHASES_WANING   0x00c0
 #define OWM_NEWMOON     0x00cd
+#define OWM_WINDSPEED_0 0x00d0
 
 DeserializationError getCurrentWeatherData();
 DeserializationError getWeatherForecastData();
+
+extern DynamicJsonDocument currentWeather;
+extern DynamicJsonDocument weatherForecast;
+extern double windSpeeds[];
+
+extern uint16_t stdOWMIconMap[61][2];
+extern uint16_t dayOWMIconMap[61][2];
+extern uint16_t nightOWMIconMap[61][2];
 
 #endif

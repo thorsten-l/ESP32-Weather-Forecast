@@ -159,8 +159,8 @@ void setup()
 
   delay(1000);
   displaySetup();
-//  getCurrentWeatherData();
-//  getWeatherForecastData();
+  getCurrentWeatherData();
+  getWeatherForecastData();
   displayUpdate();
 
   Serial.println("Setup done.\n");
