@@ -162,8 +162,8 @@ void setup()
   delay(1000);
   demo_setup();
 
-  // getCurrentWeatherData();
-  // getWeatherForecastData();
+  getCurrentWeatherData();
+  getWeatherForecastData();
 }
 
 void loop()
