@@ -91,6 +91,7 @@ DeserializationError getCurrentWeatherData()
       "weather?id=2920632&appid=53166edfe73f27534840e137234035c7&units="
       "metric&lang=de");
 
+/*
   if (err == DeserializationError::Ok)
   {
     time_t dt = currentWeather["dt"].as<long>();
@@ -103,6 +104,7 @@ DeserializationError getCurrentWeatherData()
   }
 
   Serial.println();
+*/
 
   return err;
 }
