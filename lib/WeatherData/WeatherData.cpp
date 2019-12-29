@@ -138,18 +138,19 @@ DeserializationError getWeatherForecastData()
       "forecast?id=2920632&appid=53166edfe73f27534840e137234035c7&units="
       "metric&lang=de");
 
-  if (err == DeserializationError::Ok)
+  /* if (err == DeserializationError::Ok)
   {
     int cnt = weatherForecast["cnt"].as<int>();
     // Serial.printf("cnt=%d\n", cnt );
 
-    /*for( int i=0; i<cnt; i++)
+    for( int i=0; i<cnt; i++)
     {
       JsonObject obj = weatherForecast["list"][i];
       showForecast( i, obj );
     }
-    */
+    
   }
+  */
 
   return err;
 }
