@@ -8,11 +8,14 @@
 #include <GxEPD2_3C.h>
 #include <DejaVuSansMono-Bold7pt8b.h>
 #include <DejaVuSansMono-Bold24pt8b.h>
+#include <DejaVuSansCondensed-Bold24pt8b.h>
 #include <DejaVuSans-Bold8pt8b.h>
 #include <DejaVuSans-Bold10pt8b.h>
+#include <DejaVuSansCondensed-Bold8pt8b.h>
 #include <DejaVuSans-Bold36pt8b.h>
 
 #include <WeatherIconsR-Regular20pt8b.h>
+#include <WeatherIconsR-Regular24pt8b.h>
 
 #include <sunmoon.h>
 #include <math.h>
@@ -29,11 +32,47 @@ char *cFlDays[] = {"Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "F
 char *cFlMonth[] = {"Januar", "Februar", "M�rz", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"};
 int daysOfMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
+// 'Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü', 'ß', '§'
+uint16_t umlaute_utf8[] = { 0xc384, 0xc396, 0xc39c, 0xc3a4, 0xc3b6, 0xc3bc, 0xc39f, 0xc2a7 };
+uint8_t umlaute_iso8859[] = { 0xc4, 0xd6, 0xdc, 0xe4, 0xf6, 0xfc, 0xdf, 0xa7 };
+
 struct bitmap_pair
 {
   const unsigned char *black;
   const unsigned char *red;
 };
+
+char *utf8ToIso8859( char *isobuffer, String utf8String )
+{
+  isobuffer[0] = 0;
+  int bi = 0;
+
+  for ( int i=0; i<utf8String.length(); i++ )
+  {
+    uint16_t c = (uint16_t)utf8String.charAt(i);
+    
+    if ( c == 0xc2 || c == 0xc3 )
+    {
+      i++;
+      c <<= 8;
+      c |= (uint16_t)utf8String.charAt(i);
+
+      for( int j=0; j<8; j++)
+      {
+        if ( umlaute_utf8[j] == c )
+        {
+          c = umlaute_iso8859[j];
+          break;
+        }
+      }
+    }
+    
+    isobuffer[bi++] = c;
+    isobuffer[bi] = 0;
+  }
+
+  return isobuffer;
+}
 
 void showCentered(int x, int y, int cwidth, const char *text)
 {
@@ -145,9 +184,9 @@ void showRiseSet( int x, int y, uint8_t icon, int hour, int minute )
   buffer[0] = icon;
   buffer[1] = 0;
   showCentered( x, y, 62, buffer );
-  display.setFont(&DejaVuSansMono_Bold7pt8b);
+  display.setFont(&DejaVuSans_Bold8pt8b);
   sprintf( buffer, "%02d:%02d", hour, minute );
-  showCentered( x, y+16, 62, buffer );
+  showCentered( x, y+18, 62, buffer );
 }
 
 void showMoonPhase( int x, int y, struct SUN_MOON &sunmoon )
@@ -190,9 +229,9 @@ void showMoonPhase( int x, int y, struct SUN_MOON &sunmoon )
   buffer[0] = icon;
   buffer[1] = 0;
   showCentered( x, y, 62, buffer );
-  display.setFont(&DejaVuSansMono_Bold7pt8b);
+  display.setFont(&DejaVuSans_Bold8pt8b);
   sprintf( buffer, "%d%%", (int)round(sunmoon.MoonPhaseNumber * 100));
-  showCentered( x, y+16, 62, buffer );  
+  showCentered( x, y+18, 62, buffer );  
 }
 
 
@@ -243,7 +282,7 @@ void showWeatherForecast3h()
   for ( int i = 0; i< 8; i++ )
   {
     display.setTextColor(GxEPD_BLACK);
-    display.setFont(&DejaVuSansMono_Bold7pt8b);
+    display.setFont(&DejaVuSansCondensed_Bold8pt8b);
     JsonObject obj = weatherForecast["list"][i];
     time_t dt = obj["dt"].as<long>();
     display.setCursor( x, y );
@@ -251,22 +290,47 @@ void showWeatherForecast3h()
 
     char buffer[16];
 
-    sprintf( buffer, "%0.1foC", obj["main"]["temp"].as<double>() );
+    double temp = obj["main"]["temp"].as<double>();
+    sprintf( buffer, "%0.1foC",  temp );
     buffer[strlen(buffer)-2] = 176; // ° Sign
-    showCentered( x, y+44+20, 62, buffer );
+
+    if( temp > 0.0 )
+    {
+      display.setTextColor(GxEPD_RED);
+    }
+    else
+    {
+      display.setTextColor(GxEPD_BLACK);
+    }
+    showCentered( x, y+68, 62, buffer );
+
+    display.setTextColor(GxEPD_RED);
+    temp = obj["main"]["temp_max"].as<double>();
+    sprintf( buffer, "%0.1foC",  temp );
+    buffer[strlen(buffer)-2] = 176; // ° Sign
+    showCentered( x, y+150, 62, buffer );
+
+    display.setTextColor(GxEPD_BLACK);
+    temp = obj["main"]["temp_min"].as<double>();
+    sprintf( buffer, "%0.1foC",  temp );
+    buffer[strlen(buffer)-2] = 176; // ° Sign
+    showCentered( x, y+170, 62, buffer );
+
+
+
     sprintf( buffer, "%d%%", obj["main"]["humidity"].as<int>() );
-    showCentered( x, y+44+36, 62, buffer );
+    display.setTextColor(GxEPD_BLACK);
+    showCentered( x, y+88, 62, buffer );
 
     display.setFont(&WeatherIconsR_Regular20pt8b);
 
     double speed = obj["wind"]["speed"].as<double>();
     uint8_t w = 0;
     for ( ; w<12 && speed > windSpeeds[w]; w++ );
-    Serial.println( w );
 
     buffer[0] = 0xd0 + w;
     buffer[1] = 0;
-    showCentered( x, y+44+70, 62, buffer );
+    showCentered( x, y+122, 62, buffer );
 
     buffer[0] = getOWMicon( obj["weather"][0]["id"].as<int>(), obj["weather"][0]["icon"].as<String>().c_str());
     buffer[1] = 0;
@@ -274,6 +338,88 @@ void showWeatherForecast3h()
 
     x += 62;
   }
+}
+
+void showGrid()
+{
+  int y0 = 80;
+  int y1 = 320;
+  int x = 144;
+
+  for( int i=x; i<640; i ++ )
+  {
+    if (( i % 2 ) == 0 )
+    {
+      display.drawPixel( i, 230, GxEPD_BLACK );
+    }
+  }
+
+  display.drawLine( x, y0, 640, y0, GxEPD_BLACK );
+  display.drawLine( x, y1, 640, y1, GxEPD_BLACK );
+
+  for( int i = 1; i<=7; i++ )
+  {
+    display.drawLine( x + (i*62), y0, x + (i*62), y1, GxEPD_BLACK );
+  }
+}
+
+void showCurrentWeather()
+{
+  char buffer[64];
+
+  int x = 146;
+  int y = 0;
+
+  display.setFont(&WeatherIconsR_Regular24pt8b);
+  display.setTextColor(GxEPD_BLACK);
+
+  buffer[0] = getOWMicon( currentWeather["weather"][0]["id"].as<int>(), currentWeather["weather"][0]["icon"].as<String>().c_str());
+  buffer[1] = 0;
+  display.setCursor( x, y+50 );
+  display.print( buffer );
+
+  display.setFont(&DejaVuSansCondensed_Bold24pt8b);
+  double temp = currentWeather["main"]["temp"].as<double>();
+  if ( temp > 0 )
+  {
+    display.setTextColor(GxEPD_RED);
+  }
+  else
+  {
+    display.setTextColor(GxEPD_BLACK);
+  }
+  
+  sprintf( buffer, " %0.1foC",  temp );
+  buffer[strlen(buffer)-2] = 176; // ° Sign
+  display.print( buffer );
+  display.setTextColor(GxEPD_BLACK);
+  sprintf( buffer, " %d%% ",  currentWeather["main"]["humidity"].as<int>() );
+  display.print( buffer );
+
+  display.setFont(&WeatherIconsR_Regular24pt8b);
+
+  double speed = currentWeather["wind"]["speed"].as<double>();
+  uint8_t w = 0;
+  for ( ; w<12 && speed > windSpeeds[w]; w++ );
+
+  buffer[0] = 0xd0 + w;
+  buffer[1] = 0;
+  display.print( buffer );
+
+  // display.setTextColor(GxEPD_BLACK);
+  display.setFont(&DejaVuSansCondensed_Bold8pt8b);
+  display.setCursor( x, y+74 );
+  display.print( utf8ToIso8859( buffer, currentWeather["weather"][0]["description"].as<String>()));
+
+  display.setCursor( x+248, y+74 );
+  display.setTextColor(GxEPD_RED);
+  sprintf( buffer, "Max %0.1foC",  currentWeather["main"]["temp_max"].as<double>() );
+  buffer[strlen(buffer)-2] = 176; // ° Sign
+  display.print( buffer );
+  display.setTextColor(GxEPD_BLACK);
+  sprintf( buffer, "  Min %0.1foC",  currentWeather["main"]["temp_min"].as<double>() );
+  buffer[strlen(buffer)-2] = 176; // ° Sign
+  display.print( buffer );
 }
 
 void displayUpdate()
@@ -324,7 +470,9 @@ void displayUpdate()
     x += 62;
     showMoonPhase( x, y, sunmoon );
 
+    showCurrentWeather();
     showWeatherForecast3h();
+    showGrid();
 
   } while (display.nextPage());
 

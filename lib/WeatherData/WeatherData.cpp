@@ -60,6 +60,8 @@ DeserializationError readJSON(DynamicJsonDocument &doc, String url)
 
   Serial.print("[HTTP] GET...\n");
 
+  // http.addHeader( "Accept-Charset", "ISO-8859-1", true ); // not working
+
   int httpCode = http.GET();
   if (httpCode > 0)
   {
