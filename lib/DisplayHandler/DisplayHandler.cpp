@@ -222,8 +222,6 @@ void showMoonPhase( int x, int y, struct SUN_MOON &sunmoon )
       break;
   }
 
-  Serial.printf( "icon=%02x\n", icon );
-
   display.setCursor( x, y );
   display.setFont(&WeatherIconsR_Regular20pt8b);
   buffer[0] = icon;
@@ -429,14 +427,11 @@ void displayUpdate()
   // now += 45 * 86400;
   localtime_r(&now, &timeinfo);
 
-  Serial.print("\n time = ");
-  Serial.println(getTimeString(1575838661));
-
   struct SUN_MOON sunmoon;
   int zone = 1;
   sun_moon( HOME_LATITUDE, HOME_LONGITUDE, &timeinfo, 0, 0, &sunmoon);
 
-  Serial.printf("\n\nmoon phase number = %d%%\n", (int)round(sunmoon.MoonPhaseNumber * 100));
+  Serial.printf("\nmoon phase number = %d%%\n", (int)round(sunmoon.MoonPhaseNumber * 100));
   Serial.printf("moon phase = %d\n", sunmoon.MoonPhase);
   Serial.printf("moon rise = %02d:%02d\n", zoneShift(sunmoon.MoonRise.hh, zone), sunmoon.MoonRise.mm);
   Serial.printf("moon set = %02d:%02d\n", zoneShift(sunmoon.MoonSet.hh, zone), sunmoon.MoonSet.mm);
