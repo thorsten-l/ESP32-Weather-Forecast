@@ -16,9 +16,8 @@ volatile SemaphoreHandle_t mutex;
 
 static int counter;
 static time_t lastTimestamp = 0;
+static time_t lastDisplayUpdateTimestamp = 0;
 static const char *rollingChars = "|/-\\";
-
-static int ttlCounter;
 
 struct tm timeinfo;
 
@@ -164,9 +163,7 @@ void setup()
   getCurrentWeatherData();
   getWeatherForecastData();
   displayUpdate();
-
-  ttlCounter = 180;
-
+  lastDisplayUpdateTimestamp = millis();
   Serial.println("Setup done.\n");
   Serial.flush();
 }
@@ -174,11 +171,12 @@ void setup()
 void loop()
 {
   time_t currentTimestamp = millis();
+  getLocalTime( &timeinfo );
 
   if ((currentTimestamp - lastTimestamp >= 1000))
   {
     bool wifiIsConnected = WiFi.isConnected();
-    Serial.printf("\r[%d] Running (%d): ", xPortGetCoreID(), ttlCounter-- );
+    Serial.printf("\r[%d] Running: ", xPortGetCoreID() );
     Serial.print(rollingChars[counter]);
     Serial.printf(" and WiFi is%s connected  ", wifiIsConnected ? "" : " NOT");
     counter++;
@@ -192,16 +190,11 @@ void loop()
       connectWiFi();
     }
 
-    if ( ttlCounter == 0 )
+    if (( timeinfo.tm_min == 0 || timeinfo.tm_min == 30 ) 
+       && ( currentTimestamp + 120000 ) > lastDisplayUpdateTimestamp )
     {
-      digitalWrite( BUILTIN_LED, BOARD_LED_OFF );
-      getLocalTime( &timeinfo );
-      time_t deepSleepDuration = 60 - timeinfo.tm_min;
-      if ( deepSleepDuration > 30 ) deepSleepDuration -= 30;
-      Serial.printf( "\n\n*** The System is going into deep sleep for %ld minutes.\n", deepSleepDuration );
-      deepSleepDuration *= 60000000;
-      // deepSleepDuration -= ( 1000000 * timeinfo.tm_sec );
-      ESP.deepSleep(deepSleepDuration);
+      displayUpdate();
+      lastDisplayUpdateTimestamp = millis();
     }
   }
 
