@@ -2,6 +2,17 @@
 #include <WeatherData.hpp>
 #include <WiFi.h>
 
+_wind_direction windDirection[] = {
+  {   0, 0x78,  "N" },
+  {  45, 0x76, "NO" },
+  {  90, 0x75,  "O" },
+  { 135, 0x79, "SO" },
+  { 180, 0x7B,  "S" },
+  { 225, 0x7A, "SW" },
+  { 270, 0x7C,  "W" },
+  { 315, 0x77, "NW" }
+};
+
 // in m/s        Beaufort 0    1    2    3    4     5     6     7     8     9    10    11
 double windSpeeds[] = { 0.3, 1.5, 3.3, 5.4, 7.9, 10.7, 13.8, 17.1, 20.7, 24.4, 28.4, 32.6 };
 

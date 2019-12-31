@@ -200,7 +200,7 @@ void loop()
       if ( deepSleepDuration > 30 ) deepSleepDuration -= 30;
       Serial.printf( "\n\n*** The System is going into deep sleep for %ld minutes.\n", deepSleepDuration );
       deepSleepDuration *= 60000000;
-      deepSleepDuration -= ( 1000000 * timeinfo.tm_sec );
+      // deepSleepDuration -= ( 1000000 * timeinfo.tm_sec );
       ESP.deepSleep(deepSleepDuration);
     }
   }

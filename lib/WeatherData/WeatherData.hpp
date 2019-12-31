@@ -14,6 +14,13 @@
 #define OWM_NEWMOON     0x00cd
 #define OWM_WINDSPEED_0 0x00d0
 
+struct _wind_direction
+{
+    int degree;
+    uint8_t icon;
+    char description[3];
+};
+
 DeserializationError getCurrentWeatherData();
 DeserializationError getWeatherForecastData();
 
@@ -24,5 +31,7 @@ extern double windSpeeds[];
 extern uint16_t stdOWMIconMap[61][2];
 extern uint16_t dayOWMIconMap[61][2];
 extern uint16_t nightOWMIconMap[61][2];
+
+extern _wind_direction windDirection[];
 
 #endif

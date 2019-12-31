@@ -274,9 +274,8 @@ uint8_t getOWMicon( int weatherId, const char *iconName )
 void showWeatherForecast3h()
 {
   int x = 145;
-  int y = 100;
+  int y = 120;
   
-
   for ( int i = 0; i< 8; i++ )
   {
     display.setTextColor(GxEPD_BLACK);
@@ -300,8 +299,9 @@ void showWeatherForecast3h()
     {
       display.setTextColor(GxEPD_BLACK);
     }
-    showCentered( x, y+68, 62, buffer );
+    showCentered( x, y+76, 62, buffer );
 
+/*
     display.setTextColor(GxEPD_RED);
     temp = obj["main"]["temp_max"].as<double>();
     sprintf( buffer, "%0.1foC",  temp );
@@ -313,12 +313,12 @@ void showWeatherForecast3h()
     sprintf( buffer, "%0.1foC",  temp );
     buffer[strlen(buffer)-2] = 176; // ° Sign
     showCentered( x, y+170, 62, buffer );
-
+*/
 
 
     sprintf( buffer, "%d%%", obj["main"]["humidity"].as<int>() );
     display.setTextColor(GxEPD_BLACK);
-    showCentered( x, y+88, 62, buffer );
+    showCentered( x, y+96, 62, buffer );
 
     display.setFont(&WeatherIconsR_Regular20pt8b);
 
@@ -328,11 +328,35 @@ void showWeatherForecast3h()
 
     buffer[0] = 0xd0 + w;
     buffer[1] = 0;
-    showCentered( x, y+122, 62, buffer );
+    showCentered( x, y+136, 62, buffer );
 
+    int windDir = obj["wind"]["deg"].as<int>();
+    int wd = windDir / 45;
+    wd *= 45;
+
+    w = 0;
+    for( ; w<8; w++ )
+    {
+      if ( windDirection[w].degree == wd )
+      {
+        break;
+      }
+    }
+
+    if ( w < 8 )
+    {
+      buffer[0] = windDirection[w].icon;
+      buffer[1] = 0;
+      showCentered( x, y+172, 62, buffer );
+    }
+
+    display.setFont(&DejaVuSans_Bold8pt8b);
+    showCentered( x, y+192, 62, windDirection[w].description );
+
+    display.setFont(&WeatherIconsR_Regular20pt8b);
     buffer[0] = getOWMicon( obj["weather"][0]["id"].as<int>(), obj["weather"][0]["icon"].as<String>().c_str());
     buffer[1] = 0;
-    showCentered( x, y+44, 62, buffer );
+    showCentered( x, y+48, 62, buffer );
 
     x += 62;
   }
@@ -340,7 +364,7 @@ void showWeatherForecast3h()
 
 void showGrid()
 {
-  int y0 = 80;
+  int y0 = 100;
   int y1 = 320;
   int x = 144;
 
@@ -348,7 +372,7 @@ void showGrid()
   {
     if (( i % 2 ) == 0 )
     {
-      display.drawPixel( i, 230, GxEPD_BLACK );
+      display.drawPixel( i, 224, GxEPD_BLACK );
     }
   }
 
@@ -365,7 +389,7 @@ void showCurrentWeather()
 {
   char buffer[64];
 
-  int x = 146;
+  int x = 150;
   int y = 0;
 
   display.setFont(&WeatherIconsR_Regular24pt8b);
@@ -373,7 +397,7 @@ void showCurrentWeather()
 
   buffer[0] = getOWMicon( currentWeather["weather"][0]["id"].as<int>(), currentWeather["weather"][0]["icon"].as<String>().c_str());
   buffer[1] = 0;
-  display.setCursor( x, y+50 );
+  display.setCursor( x, y+60 );
   display.print( buffer );
 
   display.setFont(&DejaVuSansCondensed_Bold24pt8b);
@@ -404,12 +428,32 @@ void showCurrentWeather()
   buffer[1] = 0;
   display.print( buffer );
 
+  int windDir = currentWeather["wind"]["deg"].as<int>();
+  int wd = windDir / 45;
+  wd *= 45;
+  w = 0;
+  for( ; w<8; w++ )
+  {
+    if ( windDirection[w].degree == wd )
+    {
+      break;
+    }
+  }
+  if ( w < 8 )
+  {
+    buffer[0] = windDirection[w].icon;
+    buffer[1] = 0;
+    showCentered( 578, 60, 62, buffer );
+  }
+  display.setFont(&DejaVuSans_Bold8pt8b);
+  showCentered( 578, 90, 62, windDirection[w].description );
+
   // display.setTextColor(GxEPD_BLACK);
   display.setFont(&DejaVuSansCondensed_Bold8pt8b);
-  display.setCursor( x, y+74 );
+  display.setCursor( x, y+90 );
   display.print( utf8ToIso8859( buffer, currentWeather["weather"][0]["description"].as<String>()));
 
-  display.setCursor( x+248, y+74 );
+  display.setCursor( x+248, y+90 );
   display.setTextColor(GxEPD_RED);
   sprintf( buffer, "Max %0.1foC",  currentWeather["main"]["temp_max"].as<double>() );
   buffer[strlen(buffer)-2] = 176; // ° Sign
