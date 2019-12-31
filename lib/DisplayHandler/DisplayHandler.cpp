@@ -6,14 +6,14 @@
 
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
+
 #include <DejaVuSansMono-Bold7pt8b.h>
 #include <DejaVuSansMono-Bold24pt8b.h>
+#include <DejaVuSansCondensed-Bold8pt8b.h>
 #include <DejaVuSansCondensed-Bold24pt8b.h>
 #include <DejaVuSans-Bold8pt8b.h>
 #include <DejaVuSans-Bold10pt8b.h>
-#include <DejaVuSansCondensed-Bold8pt8b.h>
 #include <DejaVuSans-Bold36pt8b.h>
-
 #include <WeatherIconsR-Regular20pt8b.h>
 #include <WeatherIconsR-Regular24pt8b.h>
 
@@ -35,12 +35,6 @@ int daysOfMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 // 'Ä', 'Ö', 'Ü', 'ä', 'ö', 'ü', 'ß', '§'
 uint16_t umlaute_utf8[] = { 0xc384, 0xc396, 0xc39c, 0xc3a4, 0xc3b6, 0xc3bc, 0xc39f, 0xc2a7 };
 uint8_t umlaute_iso8859[] = { 0xc4, 0xd6, 0xdc, 0xe4, 0xf6, 0xfc, 0xdf, 0xa7 };
-
-struct bitmap_pair
-{
-  const unsigned char *black;
-  const unsigned char *red;
-};
 
 char *utf8ToIso8859( char *isobuffer, String utf8String )
 {
@@ -464,6 +458,38 @@ void showCurrentWeather()
   display.print( buffer );
 }
 
+void showSunMoon(struct tm timeinfo)
+{
+  struct SUN_MOON sunmoon;
+  int zone = 1;
+  sun_moon( HOME_LATITUDE, HOME_LONGITUDE, &timeinfo, 0, 0, &sunmoon);
+
+  display.drawLine( 144, 0, 144, 384, GxEPD_BLACK );
+  int y = 364;
+  int x = 145;
+  display.setTextColor(GxEPD_RED);
+  showRiseSet( x, y, OWM_SUNRISE, zoneShift(sunmoon.SunRise.hh, zone), sunmoon.SunRise.mm );
+  x += 62;
+  display.setTextColor(GxEPD_BLACK);
+  showRiseSet( x, y, OWM_SUNSET, zoneShift(sunmoon.SunSet.hh, zone), sunmoon.SunSet.mm );
+  x += 62;
+  display.setTextColor(GxEPD_RED);
+  showRiseSet( x, y, OWM_MOONRISE, zoneShift(sunmoon.MoonRise.hh, zone), sunmoon.MoonRise.mm );
+  x += 62;
+  display.setTextColor(GxEPD_BLACK);
+  showRiseSet( x, y, OWM_MOONSET, zoneShift(sunmoon.MoonSet.hh, zone), sunmoon.MoonSet.mm );
+  x += 62;
+  showMoonPhase( x, y, sunmoon );
+}
+
+void showError()
+{
+  display.setTextColor(GxEPD_RED);
+  display.setFont(&DejaVuSansCondensed_Bold8pt8b);
+  display.setCursor( 470, 364 );
+  display.print( "Verbindungsfehler!" );
+}
+
 void displayUpdate()
 {
   struct tm timeinfo;
@@ -471,54 +497,45 @@ void displayUpdate()
   // now += 45 * 86400;
   localtime_r(&now, &timeinfo);
 
-  struct SUN_MOON sunmoon;
-  int zone = 1;
-  sun_moon( HOME_LATITUDE, HOME_LONGITUDE, &timeinfo, 0, 0, &sunmoon);
+  Serial.printf( "\n\n(%02d:%02d) Starting display update...\n", timeinfo.tm_hour, timeinfo.tm_min );
+  bool displayError = false;
 
-  Serial.printf("\nmoon phase number = %d%%\n", (int)round(sunmoon.MoonPhaseNumber * 100));
-  Serial.printf("moon phase = %d\n", sunmoon.MoonPhase);
-  Serial.printf("moon rise = %02d:%02d\n", zoneShift(sunmoon.MoonRise.hh, zone), sunmoon.MoonRise.mm);
-  Serial.printf("moon set = %02d:%02d\n", zoneShift(sunmoon.MoonSet.hh, zone), sunmoon.MoonSet.mm);
-  Serial.printf("sun rise = %02d:%02d\n", zoneShift(sunmoon.SunRise.hh, zone), sunmoon.SunRise.mm);
-  Serial.printf("sun set = %02d:%02d\n", zoneShift(sunmoon.SunSet.hh, zone), sunmoon.SunSet.mm);
+  DeserializationError err = getCurrentWeatherData();
+  if ( err != DeserializationError::Ok )
+  {
+    Serial.print( "cw " );
+    Serial.println( err.c_str() );
+    displayError = true;
+  }
+
+  err = getWeatherForecastData();
+  if ( err != DeserializationError::Ok )
+  {
+    Serial.print( "wf " );
+    Serial.println( err.c_str() );
+    displayError = true;
+  }
 
   display.setFullWindow();
   display.setRotation(0);
   display.setTextColor(GxEPD_BLACK);
   display.firstPage();
+
   do
   {
     showCalendar(now, timeinfo, 2, 0);
     showClock(timeinfo, 2, 315);
-
-    display.drawLine( 144, 0, 144, 384, GxEPD_BLACK );
-
-    int y = 364;
-    int x = 145;
-    display.setTextColor(GxEPD_RED);
-    showRiseSet( x, y, OWM_SUNRISE, zoneShift(sunmoon.SunRise.hh, zone), sunmoon.SunRise.mm );
-    x += 62;
-    display.setTextColor(GxEPD_BLACK);
-    showRiseSet( x, y, OWM_SUNSET, zoneShift(sunmoon.SunSet.hh, zone), sunmoon.SunSet.mm );
-    x += 62;
-    display.setTextColor(GxEPD_RED);
-    showRiseSet( x, y, OWM_MOONRISE, zoneShift(sunmoon.MoonRise.hh, zone), sunmoon.MoonRise.mm );
-    x += 62;
-    display.setTextColor(GxEPD_BLACK);
-    showRiseSet( x, y, OWM_MOONSET, zoneShift(sunmoon.MoonSet.hh, zone), sunmoon.MoonSet.mm );
-    x += 62;
-    showMoonPhase( x, y, sunmoon );
-
+    showSunMoon( timeinfo );
     showCurrentWeather();
     showWeatherForecast3h();
     showGrid();
-
-  } while (display.nextPage());
-
-  display.powerOff();
-  delay(200);
-  SPI.end();
-  Serial.println("display update done.");
+    if ( displayError == true )
+    {
+      showError();
+    } 
+  } 
+  while (display.nextPage());
+  Serial.println("display update done.\n");
 }
 
 void displaySetup()

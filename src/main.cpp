@@ -160,8 +160,6 @@ void setup()
 
   delay(1000);
   displaySetup();
-  getCurrentWeatherData();
-  getWeatherForecastData();
   displayUpdate();
   lastDisplayUpdateTimestamp = millis();
   Serial.println("Setup done.\n");
@@ -189,9 +187,8 @@ void loop()
     {
       connectWiFi();
     }
-
-    if (( timeinfo.tm_min == 0 || timeinfo.tm_min == 30 ) 
-       && ( currentTimestamp + 120000 ) > lastDisplayUpdateTimestamp )
+    if (( timeinfo.tm_min == 0 || timeinfo.tm_min == 30 ) && 
+         currentTimestamp > ( lastDisplayUpdateTimestamp + 120000 ))
     {
       displayUpdate();
       lastDisplayUpdateTimestamp = millis();
@@ -199,5 +196,5 @@ void loop()
   }
 
   ArduinoOTA.handle();
-  delay(25);
+  delay( 25 );
 }
