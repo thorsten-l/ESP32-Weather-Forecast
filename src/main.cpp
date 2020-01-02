@@ -159,8 +159,8 @@ void setup()
   Serial.println();
 
   delay(1000);
-  displaySetup();
-  displayUpdate();
+  displayHandler.setup();
+  displayHandler.update();
   lastDisplayUpdateTimestamp = millis();
   Serial.println("Setup done.\n");
   Serial.flush();
@@ -190,7 +190,7 @@ void loop()
     if (( timeinfo.tm_min == 0 || timeinfo.tm_min == 30 ) && 
          currentTimestamp > ( lastDisplayUpdateTimestamp + 120000 ))
     {
-      displayUpdate();
+      displayHandler.update();
       lastDisplayUpdateTimestamp = millis();
     }
   }

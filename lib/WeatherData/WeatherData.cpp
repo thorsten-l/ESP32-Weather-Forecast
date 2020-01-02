@@ -1,6 +1,12 @@
+#include <App.hpp>
 #include <HTTPClient.h>
 #include <WeatherData.hpp>
 #include <WiFi.h>
+
+#define NUMBER_OF_RETRIES 3
+
+DynamicJsonDocument currentWeather(1000);
+DynamicJsonDocument weatherForecast(32000);
 
 _wind_direction windDirection[] = {
   {   0, 0x78,  "N" },
@@ -55,12 +61,7 @@ uint16_t nightOWMIconMap[61][2] PROGMEM = {
     {901, 0x4a}, {902, 0x8d}, {903, 0x90}, {904, 0x8c}, {905, 0x3f}, {906, 0x42},
     {957, 0x6c}};
 
-extern String getTimeString(time_t time);
-
-DynamicJsonDocument currentWeather(1000);
-DynamicJsonDocument weatherForecast(32000);
-
-DeserializationError readJSON(DynamicJsonDocument &doc, String url)
+DeserializationError readJSON(DynamicJsonDocument &doc, String url, int retries )
 {
   HTTPClient http;
   DeserializationError err = DeserializationError::IncompleteInput;
@@ -93,6 +94,14 @@ DeserializationError readJSON(DynamicJsonDocument &doc, String url)
                   http.errorToString(httpCode).c_str());
   }
   http.end();
+
+  if ( err != DeserializationError::Ok && retries >= 1 )
+  {
+    Serial.printf( "ERROR: Parsing weather data. (%s, retries=%d)\n", err.c_str(), retries-- );
+    delay( 5000 );
+    err = readJSON( doc,  url, retries );
+  }
+
   return err;
 }
 
@@ -101,48 +110,11 @@ DeserializationError getCurrentWeatherData()
   DeserializationError err = readJSON(
       currentWeather,
       "http://api.openweathermap.org/data/2.5/"
-      "weather?id=2920632&appid=53166edfe73f27534840e137234035c7&units="
-      "metric&lang=de");
-
-/*
-  if (err == DeserializationError::Ok)
-  {
-    time_t dt = currentWeather["dt"].as<long>();
-    Serial.printf("dt=%ld %s\n", dt, getTimeString(dt).c_str());
-    Serial.printf(
-        "weather=%s\n",
-        currentWeather["weather"][0]["description"].as<String>().c_str());
-    dt = currentWeather["sys"]["sunset"].as<long>();
-    Serial.printf("sunset=%ld %s\n", dt, getTimeString(dt).c_str());
-  }
-
-  Serial.println();
-*/
+      "weather?id=" OPEN_WEATHER_MAP_CITY_ID 
+      "&appid=" OPEN_WEATHER_MAP_APPID "&units="
+      "metric&lang=de", NUMBER_OF_RETRIES );
 
   return err;
-}
-
-void showForecast( int i, JsonObject& obj )
-{
-  time_t dt = obj["dt"].as<long>();
-
-  Serial.printf("%02d dt=%ld %s, dt_txt=%s\n", 
-    i, 
-    dt, 
-    getTimeString(dt).c_str(), 
-    obj["dt_txt"].as<String>().c_str());
-
-  Serial.printf("temp=%.2f, humidity=%d%%\n", 
-    obj["main"]["temp"].as<double>(), 
-    obj["main"]["humidity"].as<int>());
-
-  Serial.printf( "weather id=%d, weather description=%s\n",
-    obj["weather"][0]["id"].as<int>(), 
-    obj["weather"][0]["description"].as<String>().c_str());
-
-  Serial.printf("wind speed=%.2f, wind deg=%d\n\n",
-    obj["wind"]["speed"].as<double>(), 
-    obj["wind"]["deg"].as<int>() );
 }
 
 DeserializationError getWeatherForecastData()
@@ -150,22 +122,9 @@ DeserializationError getWeatherForecastData()
   DeserializationError err = readJSON(
       weatherForecast,
       "http://api.openweathermap.org/data/2.5/"
-      "forecast?id=2920632&appid=53166edfe73f27534840e137234035c7&units="
-      "metric&lang=de");
-
-  /* if (err == DeserializationError::Ok)
-  {
-    int cnt = weatherForecast["cnt"].as<int>();
-    // Serial.printf("cnt=%d\n", cnt );
-
-    for( int i=0; i<cnt; i++)
-    {
-      JsonObject obj = weatherForecast["list"][i];
-      showForecast( i, obj );
-    }
-    
-  }
-  */
+      "forecast?id=" OPEN_WEATHER_MAP_CITY_ID 
+      "&appid=" OPEN_WEATHER_MAP_APPID "&units="
+      "metric&lang=de", NUMBER_OF_RETRIES );
 
   return err;
 }

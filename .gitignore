@@ -1,6 +1,7 @@
 # Private
 lib/App/App.hpp
 private/
+*.code-workspace
 
 # PlatformIO
 .pio
