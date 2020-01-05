@@ -18,7 +18,7 @@ uint8_t findIcon( uint16_t icons[][2], uint16_t iconId )
 
 uint8_t getOWMicon( int weatherId, const char *iconName )
 {
-  uint8_t icon = findIcon( stdOWMIconMap, weatherId );
+  uint8_t icon = 0x20;
 
   char lastChar = 0;
   int i = 0;
@@ -72,13 +72,13 @@ void DisplayHandler::showWeatherForecast3h()
     display.setTextColor(GxEPD_BLACK);
     showCentered( x, y+96, 62, buffer );
 
-    display.setFont(&WeatherIconsR_Regular20pt8b);
+    display.setFont(&WeatherIcons_SunMoonWind20pt7b);
 
     double speed = obj["wind"]["speed"].as<double>();
     uint8_t w = 0;
     for ( ; w<12 && speed > windSpeeds[w]; w++ );
 
-    buffer[0] = 0xd0 + w;
+    buffer[0] = OWM_WINDSPEED_0 + w;
     buffer[1] = 0;
     showCentered( x, y+136, 62, buffer );
 
@@ -105,7 +105,7 @@ void DisplayHandler::showWeatherForecast3h()
     display.setFont(&DejaVuSans_Bold8pt8b);
     showCentered( x, y+192, 62, windDirection[w].description );
 
-    display.setFont(&WeatherIconsR_Regular20pt8b);
+    display.setFont(&WeatherIcons_CloudsNightDay20pt7b);
     buffer[0] = getOWMicon( obj["weather"][0]["id"].as<int>(), obj["weather"][0]["icon"].as<String>().c_str());
     buffer[1] = 0;
     showCentered( x, y+48, 62, buffer );
@@ -144,7 +144,7 @@ void DisplayHandler::showCurrentWeather()
   int x = 150;
   int y = 0;
 
-  display.setFont(&WeatherIconsR_Regular24pt8b);
+  display.setFont(&WeatherIcons_CloudsNightDay24pt7b);
   display.setTextColor(GxEPD_BLACK);
 
   buffer[0] = getOWMicon( currentWeather["weather"][0]["id"].as<int>(), currentWeather["weather"][0]["icon"].as<String>().c_str());
@@ -170,13 +170,13 @@ void DisplayHandler::showCurrentWeather()
   sprintf( buffer, " %d%% ",  currentWeather["main"]["humidity"].as<int>() );
   display.print( buffer );
 
-  display.setFont(&WeatherIconsR_Regular24pt8b);
+  display.setFont(&WeatherIcons_SunMoonWind24pt7b);
 
   double speed = currentWeather["wind"]["speed"].as<double>();
   uint8_t w = 0;
   for ( ; w<12 && speed > windSpeeds[w]; w++ );
 
-  buffer[0] = 0xd0 + w;
+  buffer[0] = OWM_WINDSPEED_0 + w;
   buffer[1] = 0;
   display.print( buffer );
 

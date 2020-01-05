@@ -15,8 +15,10 @@
 #include <DejaVuSans-Bold8pt8b.h>
 #include <DejaVuSans-Bold10pt8b.h>
 #include <DejaVuSans-Bold36pt8b.h>
-#include <WeatherIconsR-Regular20pt8b.h>
-#include <WeatherIconsR-Regular24pt8b.h>
+#include <WeatherIcons-CloudsNightDay20pt7b.h>
+#include <WeatherIcons-CloudsNightDay24pt7b.h>
+#include <WeatherIcons-SunMoonWind20pt7b.h>
+#include <WeatherIcons-SunMoonWind24pt7b.h>
 
 #include <sunmoon.h>
 #include <math.h>

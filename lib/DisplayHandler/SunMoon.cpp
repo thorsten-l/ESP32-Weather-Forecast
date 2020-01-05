@@ -4,7 +4,7 @@ void DisplayHandler::showRiseSet( int x, int y, uint8_t icon, int hour, int minu
 {
   char buffer[6];
   display.setCursor( x, y );
-  display.setFont(&WeatherIconsR_Regular20pt8b);
+  display.setFont(&WeatherIcons_SunMoonWind20pt7b);
   buffer[0] = icon;
   buffer[1] = 0;
   showCentered( x, y, 62, buffer );
@@ -47,7 +47,7 @@ void DisplayHandler::showMoonPhase( int x, int y, struct SUN_MOON &sunmoon )
   }
 
   display.setCursor( x, y );
-  display.setFont(&WeatherIconsR_Regular20pt8b);
+  display.setFont(&WeatherIcons_SunMoonWind20pt7b);
   buffer[0] = icon;
   buffer[1] = 0;
   showCentered( x, y, 62, buffer );
