@@ -14,13 +14,6 @@
 #define OWM_NEWMOON     0x004d
 #define OWM_WINDSPEED_0 0x0050
 
-struct _wind_direction
-{
-    int degree;
-    uint8_t icon;
-    char description[3];
-};
-
 struct _weather_info
 {
     char time[8];
@@ -39,15 +32,6 @@ struct _weather_info
     int windDegree;
 };
 
-extern DynamicJsonDocument currentWeather;
-extern DynamicJsonDocument weatherForecast;
-extern double windSpeeds[];
-
-extern uint16_t dayOWMIconMap[61][2];
-extern uint16_t nightOWMIconMap[61][2];
-
-extern _wind_direction windDirection[];
-
 class WeatherData
 {
 private:
@@ -65,6 +49,5 @@ public:
 };
 
 extern WeatherData weatherData;
-
 
 #endif

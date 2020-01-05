@@ -10,6 +10,13 @@
 DynamicJsonDocument currentWeather(1000);
 DynamicJsonDocument weatherForecast(32000);
 
+struct _wind_direction
+{
+    int degree;
+    uint8_t icon;
+    char description[3];
+};
+
 _wind_direction windDirection[] = {
     {0, 0x70, "N"},
     {45, 0x71, "NO"},
@@ -23,6 +30,7 @@ _wind_direction windDirection[] = {
 // in m/s        Beaufort 0    1    2    3    4     5     6     7     8     9    10    11
 double windSpeeds[] = {0.3, 1.5, 3.3, 5.4, 7.9, 10.7, 13.8, 17.1, 20.7, 24.4, 28.4, 32.6};
 
+// OpenWeatherMap daylight icons
 uint16_t dayOWMIconMap[61][2] PROGMEM = {
     {200, 0x4D}, {201, 0x4D}, {202, 0x4D}, {210, 0x45}, {211, 0x45}, {212, 0x45}, {221, 0x45}, {230, 0x4D}, 
     {231, 0x4D}, {232, 0x4D}, {300, 0x4B}, {301, 0x4B}, {302, 0x48}, {310, 0x48}, {311, 0x48}, {312, 0x48}, 
@@ -33,6 +41,7 @@ uint16_t dayOWMIconMap[61][2] PROGMEM = {
     {800, 0x21}, {801, 0x40}, {802, 0x40}, {803, 0x40}, {804, 0x42}, {900, 0x25}, {901, 0x4C}, {902, 0x2d}, 
     {903, 0x2b}, {904, 0x28}, {905, 0x23}, {906, 0x44}, {957, 0x24}};
 
+// OpenWeatherMap night time icons
 uint16_t nightOWMIconMap[61][2] PROGMEM = {
     {200, 0x3D}, {201, 0x3D}, {202, 0x3D}, {210, 0x35}, {211, 0x35}, {212, 0x35}, {221, 0x35}, {230, 0x3D}, 
     {231, 0x3D}, {232, 0x3D}, {300, 0x3B}, {301, 0x3B}, {302, 0x38}, {310, 0x38}, {311, 0x38}, {312, 0x38}, 
@@ -212,6 +221,7 @@ void WeatherData::get(struct _weather_info *info, JsonObject &obj)
   info->windSpeedIcon[1] = 0;
 
   info->windDegree = obj["wind"]["deg"].as<int>();
+  Serial.printf( "wind deg=%d\n", info->windDegree );
   int wd = info->windDegree / 45;
   wd *= 45;
 
@@ -245,6 +255,9 @@ void WeatherData::get(struct _weather_info *info, JsonObject &obj)
 
 void WeatherData::get(struct _weather_info *info)
 {
+  // ATTENTION: Do not replace the method call with 
+  //   get( info, currentWeather.as<JsonObject>());
+  //   i don't know why but the code will freeze at this point.
   JsonObject obj = currentWeather.as<JsonObject>();
   get( info, obj );
 }
