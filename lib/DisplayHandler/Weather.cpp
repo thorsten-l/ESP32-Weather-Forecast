@@ -144,7 +144,7 @@ void DisplayHandler::showCurrentWeather()
   int x = 150;
   int y = 0;
 
-  display.setFont(&WeatherIcons_CloudsNightDay24pt7b);
+  display.setFont(&WeatherIcons_CloudsNightDay28pt7b);
   display.setTextColor(GxEPD_BLACK);
 
   buffer[0] = getOWMicon( currentWeather["weather"][0]["id"].as<int>(), currentWeather["weather"][0]["icon"].as<String>().c_str());
@@ -170,7 +170,7 @@ void DisplayHandler::showCurrentWeather()
   sprintf( buffer, " %d%% ",  currentWeather["main"]["humidity"].as<int>() );
   display.print( buffer );
 
-  display.setFont(&WeatherIcons_SunMoonWind24pt7b);
+  display.setFont(&WeatherIcons_SunMoonWind28pt7b);
 
   double speed = currentWeather["wind"]["speed"].as<double>();
   uint8_t w = 0;
