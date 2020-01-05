@@ -24,6 +24,7 @@
 #include <math.h>
 #include <WeatherData.hpp>
 #include <Adafruit_GFX.h>
+#include <Utils.hpp>
 
 extern GxEPD2_3C<GxEPD2_750c, GxEPD2_750c::HEIGHT> display;
 
@@ -40,10 +41,6 @@ private:
   void showWeatherForecast3h();
   void showGrid();
   void showError();
-
-  String getTimeString(time_t time);
-  int zoneShift(int utc_hour, int zone);
-  char *utf8ToIso8859( char *isobuffer, String utf8String );
 
 public:
   void setup();

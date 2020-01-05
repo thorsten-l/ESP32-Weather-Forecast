@@ -27,23 +27,8 @@ void DisplayHandler::update()
   localtime_r(&now, &timeinfo);
 
   Serial.printf( "\n\n(%02d:%02d) Starting display update...\n", timeinfo.tm_hour, timeinfo.tm_min );
-  bool displayError = false;
 
-  DeserializationError err = getCurrentWeatherData();
-  if ( err != DeserializationError::Ok )
-  {
-    Serial.print( "ERROR: Reading current weather data: " );
-    Serial.println( err.c_str() );
-    displayError = true;
-  }
-
-  err = getWeatherForecastData();
-  if ( err != DeserializationError::Ok )
-  {
-    Serial.print( "ERROR: Reading weather forecast data: " );
-    Serial.println( err.c_str() );
-    displayError = true;
-  }
+  bool updateError = weatherData.update();
 
   display.setFullWindow();
   display.setRotation(0);
@@ -58,7 +43,7 @@ void DisplayHandler::update()
     showCurrentWeather();
     showWeatherForecast3h();
     showGrid();
-    if ( displayError == true )
+    if ( updateError == true )
     {
       showError();
     } 

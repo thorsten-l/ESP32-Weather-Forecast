@@ -21,8 +21,23 @@ struct _wind_direction
     char description[3];
 };
 
-DeserializationError getCurrentWeatherData();
-DeserializationError getWeatherForecastData();
+struct _weather_info
+{
+    char time[8];
+    char weatherIcon[2];
+    uint16_t weatherIconColor;
+    char weatherDescription[64];
+    char temperature[10];
+    uint16_t tempColor;
+    char temp_min[10];
+    char temp_max[10];
+    char humidity[8];
+    char windSpeedIcon[2];
+    char windDirectionIcon[2];
+    char windDirectionDescription[3];
+    double windSpeed;
+    int windDegree;
+};
 
 extern DynamicJsonDocument currentWeather;
 extern DynamicJsonDocument weatherForecast;
@@ -32,5 +47,24 @@ extern uint16_t dayOWMIconMap[61][2];
 extern uint16_t nightOWMIconMap[61][2];
 
 extern _wind_direction windDirection[];
+
+class WeatherData
+{
+private:
+  uint8_t findIcon( uint16_t icons[][2], uint16_t iconId );
+  uint8_t getOWMicon( struct _weather_info *info, int weatherId, const char *iconName );
+  DeserializationError readJSON(DynamicJsonDocument &doc, String url, int retries );
+  DeserializationError getCurrentWeatherData();
+  DeserializationError getWeatherForecastData();
+  void get( struct _weather_info *info, JsonObject &obj );
+
+public:
+  bool update();
+  void get( struct _weather_info *info ); // current weather
+  void get( struct _weather_info *info, int index ); // weather forecast
+};
+
+extern WeatherData weatherData;
+
 
 #endif
