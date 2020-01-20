@@ -22,9 +22,16 @@ struct _weather_info
     char weatherDescription[64];
     char temperature[10];
     uint16_t tempColor;
-    char temp_min[10];
-    char temp_max[10];
+    char tempMin[10];
+    char tempMax[10];
+    char feelsLike[10];
+    char pressure[10];
+    bool isRaining;
+    char rain[10];
+    bool isSnowing;
+    char snow[10];
     char humidity[8];
+    char cloudsAll[8];
     char windSpeedIcon[2];
     char windDirectionIcon[2];
     char windDirectionDescription[3];

@@ -16,21 +16,26 @@ void DisplayHandler::showWeatherForecast3h()
     showCentered( x, y, 62, wi.time );
 
     display.setTextColor(wi.tempColor);
-    showCentered( x, y+76, 62, wi.temperature );
+    showCentered( x, y+70, 62, wi.temperature );
 
     display.setTextColor(GxEPD_BLACK);
-    showCentered( x, y+96, 62, wi.humidity );
-
+    showCentered( x, y+88, 62, wi.humidity );
+    
+    // if ( wi.isRaining )
+    {
+      showCentered( x, y+106, 62, wi.rain );
+    }
+    
     display.setFont(&WeatherIcons_SunMoonWind20pt7b);
-    showCentered( x, y+136, 62, wi.windSpeedIcon );
-    showCentered( x, y+172, 62, wi.windDirectionIcon );
+    showCentered( x, y+140, 62, wi.windSpeedIcon );
+    showCentered( x, y+174, 62, wi.windDirectionIcon );
     
     display.setFont(&DejaVuSans_Bold8pt8b);
     showCentered( x, y+192, 62, wi.windDirectionDescription );
 
     display.setFont(&WeatherIcons_CloudsNightDay20pt7b);
     display.setTextColor(wi.weatherIconColor);
-    showCentered( x, y+48, 62, wi.weatherIcon );
+    showCentered( x, y+46, 62, wi.weatherIcon );
 
     x += 62;
   }
@@ -42,13 +47,14 @@ void DisplayHandler::showGrid()
   int y1 = 320;
   int x = 144;
 
-  for( int i=x; i<640; i ++ )
+  /*for( int i=x; i<640; i ++ )
   {
     if (( i % 2 ) == 0 )
     {
       display.drawPixel( i, 224, GxEPD_BLACK );
     }
   }
+*/
 
   display.drawLine( x, y0, 640, y0, GxEPD_BLACK );
   display.drawLine( x, y1, 640, y1, GxEPD_BLACK );
@@ -74,29 +80,41 @@ void DisplayHandler::showCurrentWeather()
 
   display.setFont(&DejaVuSansCondensed_Bold24pt8b);
   display.setTextColor(wi.tempColor);
-  display.print( " " );
+  display.setCursor( x+72, y+60 );
   display.print( wi.temperature );
   display.setTextColor(GxEPD_BLACK);
-  display.print( "  " );
+  display.setCursor( x+248, y+40 );
   display.print( wi.humidity );
   display.setFont(&WeatherIcons_SunMoonWind28pt7b);
   display.print( " " );
   display.print( wi.windSpeedIcon );
 
-  showCentered( x+428, y+60, 62, wi.windDirectionIcon );
+  showCentered( x+428, y+40, 62, wi.windDirectionIcon );
   display.setFont(&DejaVuSans_Bold8pt8b);
-  showCentered( x+428, y+90, 62, wi.windDirectionDescription );
+  showCentered( x+428, y+60, 62, wi.windDirectionDescription );
 
   display.setFont(&DejaVuSansCondensed_Bold8pt8b);
   display.setCursor( x, y+90 );
   display.print( wi.weatherDescription );
 
-  display.setCursor( x+248, y+90 );
+  display.setCursor( x+248, y+60 );
   display.setTextColor(GxEPD_RED);
   display.print( "Max " );
-  display.print( wi.temp_max );
+  display.print( wi.tempMax );
   display.setTextColor(GxEPD_BLACK);
   display.print( "  Min " );
-  display.print( wi.temp_min );
+  display.print( wi.tempMin );
+
+  display.setCursor( x+248, y+76 );
+  display.print( "Gef " );
+  display.print( wi.feelsLike );
+  display.print( "  Wol " );
+  display.print( wi.cloudsAll );
+
+  display.setCursor( x+248, y+94 );
+  display.print( "Reg " );
+  display.print( wi.rain );
+  display.print( "mm" );
+
 }
 

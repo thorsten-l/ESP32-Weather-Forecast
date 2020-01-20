@@ -221,7 +221,7 @@ void WeatherData::get(struct _weather_info *info, JsonObject &obj)
   info->windSpeedIcon[1] = 0;
 
   info->windDegree = obj["wind"]["deg"].as<int>();
-  Serial.printf( "wind deg=%d\n", info->windDegree );
+  // Serial.printf( "wind deg=%d\n", info->windDegree );
   int wd = info->windDegree / 45;
   wd *= 45;
 
@@ -247,10 +247,28 @@ void WeatherData::get(struct _weather_info *info, JsonObject &obj)
 
   utf8ToIso8859( info->weatherDescription, obj["weather"][0]["description"].as<String>());
 
-  sprintf( info->temp_max, "%0.1foC",  obj["main"]["temp_max"].as<double>() );
-  info->temp_max[strlen(info->temp_max)-2] = 176; // ° Sign
-  sprintf( info->temp_min, "%0.1foC",  obj["main"]["temp_min"].as<double>() );
-  info->temp_min[strlen(info->temp_min)-2] = 176; // ° Sign
+  sprintf( info->tempMax, "%0.1foC",  obj["main"]["temp_max"].as<double>() );
+  info->tempMax[strlen(info->tempMax)-2] = 176; // ° Sign
+  sprintf( info->tempMin, "%0.1foC",  obj["main"]["temp_min"].as<double>() );
+  info->tempMin[strlen(info->tempMin)-2] = 176; // ° Sign
+
+  sprintf( info->feelsLike, "%0.1foC",  obj["main"]["feels_like"].as<double>() );
+  info->feelsLike[strlen(info->feelsLike)-2] = 176; // ° Sign
+  
+  sprintf(info->cloudsAll, "%d%%", obj["clouds"]["all"].as<int>());
+
+  double rain = 0.0;
+  if ( obj.containsKey("rain") )
+  {
+    JsonObject rainObj = obj["rain"];
+    if ( rainObj.containsKey("3h"))
+    {
+      rain = rainObj["3h"].as<double>();
+    }
+  }
+  sprintf( info->rain, "%0.2f",  rain );
+  info->isRaining = ( rain > 0.0 );
+  info->isSnowing = false; // TODO ...
 }
 
 void WeatherData::get(struct _weather_info *info)
