@@ -19,7 +19,8 @@ void DisplayHandler::showWeatherForecast3h()
     showCentered( x, y+70, 62, wi.temperature );
 
     display.setTextColor(GxEPD_BLACK);
-    showCentered( x, y+88, 62, wi.humidity );
+    // showCentered( x, y+88, 62, wi.humidity );
+    showCentered( x, y+88, 62, wi.cloudsAll );
     
     // if ( wi.isRaining )
     {
