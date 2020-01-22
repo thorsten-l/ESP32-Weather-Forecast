@@ -247,14 +247,16 @@ void WeatherData::get(struct _weather_info *info, JsonObject &obj)
 
   utf8ToIso8859( info->weatherDescription, obj["weather"][0]["description"].as<String>());
 
-  sprintf( info->tempMax, "%0.1foC",  obj["main"]["temp_max"].as<double>() );
+//  sprintf( info->tempMax, "%0.1foC",  obj["main"]["temp_max"].as<double>() );
+  sprintf( info->tempMax, "%0.1foC",  getHistoryMax() );
   info->tempMax[strlen(info->tempMax)-2] = 176; // ° Sign
-  sprintf( info->tempMin, "%0.1foC",  obj["main"]["temp_min"].as<double>() );
+//   sprintf( info->tempMin, "%0.1foC",  obj["main"]["temp_min"].as<double>() );
+  sprintf( info->tempMin, "%0.1foC",  getHistoryMin() );
   info->tempMin[strlen(info->tempMin)-2] = 176; // ° Sign
 
   sprintf( info->feelsLike, "%0.1foC",  obj["main"]["feels_like"].as<double>() );
   info->feelsLike[strlen(info->feelsLike)-2] = 176; // ° Sign
-  
+
   sprintf(info->cloudsAll, "%d%%", obj["clouds"]["all"].as<int>());
 
   double rain = 0.0;
@@ -277,6 +279,7 @@ void WeatherData::get(struct _weather_info *info)
   //   get( info, currentWeather.as<JsonObject>());
   //   i don't know why but the code will freeze at this point.
   JsonObject obj = currentWeather.as<JsonObject>();
+  pushMinMax( obj["main"]["temp_min"].as<double>(), obj["main"]["temp_max"].as<double>() );
   get( info, obj );
 }
 
@@ -284,4 +287,44 @@ void WeatherData::get(struct _weather_info *info, int index)
 {
   JsonObject obj = weatherForecast["list"][index];
   get(info, obj );
+}
+
+void WeatherData::pushMinMax( double minValue, double maxValue )
+{
+  for ( int i=MINMAX_NVALUES-1; i>0; i-- )
+  {
+    minHistory[i] = minHistory[i-1];
+    maxHistory[i] = maxHistory[i-1];
+  }
+
+  if ( historyLevel < MINMAX_NVALUES ) historyLevel++;
+
+  minHistory[0] = minValue;
+  maxHistory[0] = maxValue;
+
+  Serial.printf( "history level: %d, min: %0.2f, max: %0.2f\n", historyLevel, minValue, maxValue );
+}
+
+double WeatherData::getHistoryMin()
+{
+  double minValue = 1000;
+
+  for ( int i=0; i<historyLevel; i++ )
+  {
+    minValue = min( minValue, minHistory[i] );
+  }
+
+  return minValue;
+}
+
+double WeatherData::getHistoryMax()
+{
+  double maxValue = -1000;
+
+  for ( int i=0; i<historyLevel; i++ )
+  {
+    maxValue = max( maxValue, maxHistory[i] );
+  }
+
+  return maxValue;
 }

@@ -41,15 +41,25 @@ struct _weather_info
 
 class WeatherData
 {
+
+// 48 * 30min = 24h
+#define MINMAX_NVALUES 48
+
 private:
+  int historyLevel = 0;
+  double minHistory[MINMAX_NVALUES];
+  double maxHistory[MINMAX_NVALUES];
   uint8_t findIcon( uint16_t icons[][2], uint16_t iconId );
   uint8_t getOWMicon( struct _weather_info *info, int weatherId, const char *iconName );
   DeserializationError readJSON(DynamicJsonDocument &doc, String url, int retries );
   DeserializationError getCurrentWeatherData();
   DeserializationError getWeatherForecastData();
   void get( struct _weather_info *info, JsonObject &obj );
+  void pushMinMax( double minValue, double maxValue );
 
 public:
+  double getHistoryMin();  // minimum temperature of the last 24h
+  double getHistoryMax();  // maximum temperature of the last 24h
   bool update();
   void get( struct _weather_info *info ); // current weather
   void get( struct _weather_info *info, int index ); // weather forecast
