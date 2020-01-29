@@ -14,7 +14,7 @@
 #include <DejaVuSansCondensed-Bold24pt8b.h>
 #include <DejaVuSans-Bold8pt8b.h>
 #include <DejaVuSans-Bold10pt8b.h>
-#include <DejaVuSans-Bold36pt8b.h>
+#include <DejaVuSans-Bold36pt8b.h> 
 #include <WeatherIcons-CloudsNightDay20pt7b.h>
 #include <WeatherIcons-CloudsNightDay28pt7b.h>
 #include <WeatherIcons-SunMoonWind20pt7b.h>

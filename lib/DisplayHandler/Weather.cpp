@@ -48,15 +48,6 @@ void DisplayHandler::showGrid()
   int y1 = 320;
   int x = 144;
 
-  /*for( int i=x; i<640; i ++ )
-  {
-    if (( i % 2 ) == 0 )
-    {
-      display.drawPixel( i, 224, GxEPD_BLACK );
-    }
-  }
-*/
-
   display.drawLine( x, y0, 640, y0, GxEPD_BLACK );
   display.drawLine( x, y1, 640, y1, GxEPD_BLACK );
 
@@ -68,7 +59,7 @@ void DisplayHandler::showGrid()
 
 void DisplayHandler::showCurrentWeather()
 {
-  int x = 150;
+  int x = 148;
   int y = 0;
 
   struct _weather_info wi;
@@ -81,24 +72,24 @@ void DisplayHandler::showCurrentWeather()
 
   display.setFont(&DejaVuSansCondensed_Bold24pt8b);
   display.setTextColor(wi.tempColor);
-  display.setCursor( x+72, y+60 );
+  display.setCursor( x+82, y+60 );
   display.print( wi.temperature );
   display.setTextColor(GxEPD_BLACK);
-  display.setCursor( x+248, y+40 );
+  display.setCursor( x+250, y+40 );
   display.print( wi.humidity );
   display.setFont(&WeatherIcons_SunMoonWind28pt7b);
   display.print( " " );
   display.print( wi.windSpeedIcon );
 
-  showCentered( x+428, y+40, 62, wi.windDirectionIcon );
+  showCentered( x+430, y+40, 62, wi.windDirectionIcon );
   display.setFont(&DejaVuSans_Bold8pt8b);
-  showCentered( x+428, y+60, 62, wi.windDirectionDescription );
+  showCentered( x+430, y+60, 62, wi.windDirectionDescription );
 
   display.setFont(&DejaVuSansCondensed_Bold8pt8b);
   display.setCursor( x, y+90 );
   display.print( wi.weatherDescription );
 
-  display.setCursor( x+248, y+60 );
+  display.setCursor( x+250, y+60 );
   display.setTextColor(GxEPD_RED);
   display.print( "Max " );
   display.print( wi.tempMax );
@@ -106,13 +97,13 @@ void DisplayHandler::showCurrentWeather()
   display.print( "  Min " );
   display.print( wi.tempMin );
 
-  display.setCursor( x+248, y+76 );
+  display.setCursor( x+250, y+76 );
   display.print( "Gef " );
   display.print( wi.feelsLike );
   display.print( "  Wol " );
   display.print( wi.cloudsAll );
 
-  display.setCursor( x+248, y+94 );
+  display.setCursor( x+250, y+94 );
   display.print( "Reg " );
   display.print( wi.rain );
   display.print( "mm" );
