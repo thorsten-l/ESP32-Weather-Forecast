@@ -270,7 +270,22 @@ void WeatherData::get(struct _weather_info *info, JsonObject &obj)
   }
   sprintf( info->rain, "%0.2f",  rain );
   info->isRaining = ( rain > 0.0 );
-  info->isSnowing = false; // TODO ...
+
+  double snow = 0.0;
+  if ( obj.containsKey("snow") )
+  {
+    JsonObject snowObj = obj["snow"];
+    if ( snowObj.containsKey("3h"))
+    {
+      snow = snowObj["3h"].as<double>();
+    }
+  }
+  sprintf( info->snow, "%0.2f",  snow );
+  info->isSnowing = ( snow > 0.0 );
+
+  sprintf( info->rain, "%0.2f",  max( rain, snow ) );
+
+  // Serial.printf( "dt=%ld, rain=%s, snow=%s\n", dt, info->rain, info->snow );
 }
 
 void WeatherData::get(struct _weather_info *info)
