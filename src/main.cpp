@@ -1,4 +1,7 @@
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
 #include "soc/efuse_reg.h"
+
 #include <App.hpp>
 #include <Arduino.h>
 #include <ArduinoJson.h>
@@ -82,6 +85,7 @@ void connectWiFi()
 
 void setup()
 {
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); // disable brownout detector
   pinMode(BUILTIN_LED, OUTPUT);
   digitalWrite(BUILTIN_LED, BOARD_LED_OFF);
   Serial.begin(115200);
